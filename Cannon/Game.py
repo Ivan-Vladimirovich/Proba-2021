@@ -36,9 +36,9 @@ class Cannon:
         screen.blit(surf2, [self.gun_x-4, self.gun_y-35])
         rect(screen, self.color_down, [self.gun_x-30, self.gun_y-5, 60, 20])
         polygon(screen, self.color_up, ([self.gun_x-25, self.gun_y-5],
-                                               [self.gun_x-18, self.gun_y-18],
-                                               [self.gun_x+18, self.gun_y-18],
-                                               [self.gun_x+25, self.gun_y-5]))
+                                        [self.gun_x-18, self.gun_y-18],
+                                        [self.gun_x+18, self.gun_y-18],
+                                        [self.gun_x+25, self.gun_y-5]))
 
 
 class Shell:
@@ -51,7 +51,7 @@ class Target:
         self.yg = randint(20, 480)
         self.rg = randint(10, 30)
         self.sx = randint(1, 3)
-        self.sy = randint(1,3)
+        self.sy = randint(1, 3)
         self.healf = 4
         self.color = (randint(20, 250), randint(20, 250), randint(20, 250))
         self.flag_x = 0
@@ -82,13 +82,6 @@ class Target:
         elif self.yg < self.rg:
             self.flag_y = 0
             self.sy = randint(5, 15)
-
-
-
-
-
-
-
 
 
 # Цикл игры
