@@ -1,43 +1,60 @@
 import pygame
-import numpy as np
-from random import randint
+from random import randint, choice
 from os import path
 
-img_dir = path.join(path.dirname(__file__), 'C:\\Users\\ВАНЯ\\Proba-2021\\img')
-
 pygame.init()
-# задание размера экрана
 xsc = 600
-ysc = 600
+ysc = 800
 FPS = 35
 SCREEN_SIZE = [xsc, ysc]
 screen = pygame.display.set_mode((xsc, ysc))
 pygame.mixer.init()
-pygame.display.set_caption('Cannon')
-
-
+# Загрузка всех изображений
+img_dir = path.join(path.dirname(__file__), 'C:\\Users\\ВАНЯ\\Proba-2021\\img')
+snd_dir = path.join(path.dirname(__file__), 'snd')
+Bad = []
 background = pygame.image.load(path.join(img_dir, "C:\\Users\\ВАНЯ\\Proba-2021\\img\\back.png")).convert()
 background_rect = background.get_rect()
 player_img = pygame.image.load(path.join(img_dir, "C:\\Users\\ВАНЯ\\Proba-2021\\img\\playerShip1_orange.png")).convert()
-bad_img = pygame.image.load(path.join(img_dir, "C:\\Users\\ВАНЯ\\Proba-2021\\img\\playerShip1_blue.png")).convert()
-bullet_img = pygame.image.load(path.join(img_dir, "C:\\Users\\ВАНЯ\\Proba-2021\\img\\Lasers\\laserGreen10.png")).convert()
+player_mini_img = pygame.transform.scale(player_img, (25, 19))
+player_mini_img.set_colorkey((0, 0, 0))
+Bad.append(pygame.image.load(path.join(img_dir, "C:\\Users\\ВАНЯ\\Proba-2021\\img\\playerShip1_blue.png")).convert())
+Bad.append(pygame.image.load(path.join(img_dir, "C:\\Users\\ВАНЯ\\Proba-2021\\img\\playerShip1_green.png")).convert())
+Bad.append(pygame.image.load(path.join(img_dir, "C:\\Users\\ВАНЯ\\Proba-2021\\img\\playerShip1_red.png")).convert())
+Bad.append(pygame.image.load(path.join(img_dir, "C:\\Users\\ВАНЯ\\Proba-2021\\img\\playerShip3_orange.png")).convert())
+bullet_img = pygame.image.load(path.join(img_dir,
+                                         "C:\\Users\\ВАНЯ\\Proba-2021\\img\\Lasers\\laserGreen10.png")).convert()
 bomb_img = pygame.image.load(path.join(img_dir, "C:\\Users\\ВАНЯ\\Proba-2021\\img\\Lasers\\laserBlue12.png")).convert()
-# Рендеринг
-screen.fill((0,  0, 0))
-screen.blit(background, background_rect)
-
-
-clock = pygame.time.Clock()
-finished = False
-
-
-def rand_color():
-    return (randint(0, 255), randint(0, 255), randint(0, 255))
+shoot_gun_sound = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\ВАНЯ\\Proba-2021\\snd\\Laser_Shoot_gun.wav"))
+shoot_bomb_sound = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\ВАНЯ\\Proba-2021\\snd\\Laser_Shoot_bomb.wav"))
+exp_sound = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\ВАНЯ\\Proba-2021\\snd\\Explosion.wav"))
+exp2_sound = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\ВАНЯ\\Proba-2021\\snd\\Explosion2.wav"))
+healf_snd = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\ВАНЯ\\Proba-2021\\snd\\Explosion5.wav"))
+explos_snd = [exp_sound, exp2_sound]
+pygame.mixer.music.load(path.join(snd_dir, "C:\\Users\\ВАНЯ\\Proba-2021\\snd\\POL-fortress-short.wav"))
+pygame.mixer.music.set_volume(0.6)
+explosion_anim = dict()
+explosion_anim['lg'] = []
+explosion_anim['sm'] = []
+explosion_anim['gun'] = []
+for i in range(9):
+    filename = "C:\\Users\\ВАНЯ\\Proba-2021\\img\\Explosive\\regularExplosion0{}.png".format(i)
+    img = pygame.image.load(path.join(img_dir, filename)).convert()
+    img.set_colorkey((0, 0, 0))
+    img_lg = pygame.transform.scale(img, (75, 75))
+    explosion_anim['lg'].append(img_lg)
+    img_sm = pygame.transform.scale(img, (32, 32))
+    explosion_anim['sm'].append(img_sm)
+    filename = "C:\\Users\\ВАНЯ\\Proba-2021\\img\\Explosive\\sonicExplosion0{}.png".format(i)
+    img = pygame.image.load(path.join(img_dir, filename)).convert()
+    img.set_colorkey((0, 0, 0))
+    explosion_anim['gun'].append(img)
 
 
 class Cannon(pygame.sprite.Sprite):
     def __init__(self, xg, yg, angle=0):
         pygame.sprite.Sprite.__init__(self)
+        self.angle = angle
         self.image = player_img
         self.image = pygame.transform.scale(player_img, (50, 38))
         self.image.set_colorkey((0, 0, 0))
@@ -45,12 +62,19 @@ class Cannon(pygame.sprite.Sprite):
         self.radius = 20
         self.rect.bottom = yg*0.95
         self.rect.centerx = xg/2
-        self.healf = 5
+        self.healf = 3
         self.speedx = 0
-        self.angle = angle
+        self.shoot_delay = 300
+        self.last_shot = pygame.time.get_ticks()
         self.up_gun = [self.rect.centerx, self.rect.bottom-50]
+        self.hidden = False
+        self.hide_timer = pygame.time.get_ticks()
 
     def update(self):
+        if self.hidden and pygame.time.get_ticks() - self.hide_timer > 1000:
+            self.hidden = False
+            self.rect.centerx = xsc / 2
+            self.rect.bottom = ysc * 0.95
         self.speedx = 0
         keystate = pygame.key.get_pressed()
         if keystate[pygame.K_a]:
@@ -58,12 +82,24 @@ class Cannon(pygame.sprite.Sprite):
         if keystate[pygame.K_d]:
             self.speedx = 8
         self.rect.x += self.speedx
+        if keystate[pygame.K_SPACE]:
+            self.strike()
 
     def strike(self):
+        now = pygame.time.get_ticks()
+        if now - self.last_shot > self.shoot_delay:
+            self.last_shot = now
+            if not self.hidden:
+                bullet = Shell(self.rect.centerx, self.rect.top)
+                all_sprites.add(bullet)
+                bullets.add(bullet)
+                shoot_gun_sound.play()
 
-        bullet = Shell(self.rect.centerx, self.rect.top)
-        all_sprites.add(bullet)
-        bullets.add(bullet)
+    def hide(self):
+        # временно скрыть игрока
+        self.hidden = True
+        self.hide_timer = pygame.time.get_ticks()
+        self.rect.center = (xsc / 2, ysc + 200)
 
 
 class Shell(pygame.sprite.Sprite):
@@ -86,7 +122,7 @@ class Shell(pygame.sprite.Sprite):
 class Target(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.transform.scale(pygame.transform.rotate(bad_img, 180), (50, 35))
+        self.image = pygame.transform.scale(pygame.transform.rotate(Bad[randint(0, len(Bad)-1)], 180), (50, 35))
         self.image.set_colorkey((0, 0, 0))
         self.rect = self.image.get_rect()
         self.radius = int(self.rect.width * .85 / 2)
@@ -113,7 +149,7 @@ class Target(pygame.sprite.Sprite):
         elif self.rect.x < 15:
             self.flag_x = 0
             self.speedy = randint(5, 15)
-        if self.rect.y > 0.75*ysc - 15:
+        if self.rect.y > 0.6*ysc - 15:
             self.flag_y = 0
             self.speedy = randint(5, 15)
         elif self.rect.y < 15:
@@ -125,6 +161,7 @@ class Target(pygame.sprite.Sprite):
             bomb = Bomb(self.rect.x, self.rect.y)
             all_sprites.add(bomb)
             bombs.add(bomb)
+            shoot_bomb_sound.play()
 
 
 class Bomb(pygame.sprite.Sprite):
@@ -134,7 +171,7 @@ class Bomb(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.centerx = x
         self.rect.bottom = y
-        self.speedy = randint(5, 10)
+        self.speedy = randint(8, 15)
 
     def update(self):
         self.rect.y += self.speedy
@@ -142,50 +179,121 @@ class Bomb(pygame.sprite.Sprite):
             self.kill()
 
 
+class Explosion(pygame.sprite.Sprite):
+    def __init__(self, center, size):
+        pygame.sprite.Sprite.__init__(self)
+        self.size = size
+        self.image = explosion_anim[self.size][0]
+        self.rect = self.image.get_rect()
+        self.rect.center = center
+        self.frame = 0
+        self.last_update = pygame.time.get_ticks()
+        self.frame_rate = 50
+
+    def update(self):
+        now = pygame.time.get_ticks()
+        if now - self.last_update > self.frame_rate:
+            self.last_update = now
+            self.frame += 1
+            if self.frame == len(explosion_anim[self.size]):
+                self.kill()
+            else:
+                center = self.rect.center
+                self.image = explosion_anim[self.size][self.frame]
+                self.rect = self.image.get_rect()
+                self.rect.center = center
+
+
+def draw_text(surf, text, size, x, y):
+    font = pygame.font.Font(font_name, size)
+    text_surface = font.render(text, True, (255, 255, 255))
+    text_rect = text_surface.get_rect()
+    text_rect.midtop = (x, y)
+    surf.blit(text_surface, text_rect)
+
+
+def draw_lives(surf, x, y, lives, img0):
+    for s in range(lives):
+        img0_rect = img0.get_rect()
+        img0_rect.x = x + 30 * s
+        img0_rect.y = y
+        surf.blit(img0, img0_rect)
+
+
 # Цикл игры
+# задание размера экрана
+
+
+pygame.display.set_caption('Cannon')
 all_sprites = pygame.sprite.Group()
-background = pygame.image.load(path.join(img_dir, "C:\\Users\\ВАНЯ\\Proba-2021\\img\\back.png")).convert()
-background_rect = background.get_rect()
+font_name = pygame.font.match_font('arial')
 all_sprites.draw(screen)
 gun = Cannon(xsc, ysc)
 all_sprites.add(gun)
 mobs = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
 bombs = pygame.sprite.Group()
-for i in range(6):
+score = 0
+flag_mob = 0
+wrag = 1
+for i in range(3):
     m = Target()
     all_sprites.add(m)
     mobs.add(m)
+    
+clock = pygame.time.Clock()
+pygame.mixer.music.play(loops=-1)
 runGame = True
+
 
 while runGame:
     clock.tick(FPS)
-
+    # добавление моба при наборе +100 очков
+    if score // 100 == wrag:
+        flag_mob = 1
+        score += 1
+        wrag += 1
+    if flag_mob == 1:
+        m = Target()
+        all_sprites.add(m)
+        mobs.add(m)
+        flag_mob = 0
     # Отслеживание событий
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             runGame = False
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                gun.strike()
             if event.key == pygame.K_a:
                 gun.speedx = -8
             if event.key == pygame.K_d:
                 gun.speedx = 8
-
+    # Рендеринг
+    pygame.display.update()
     all_sprites.update()
     screen.fill((0, 0, 0))
     screen.blit(background, background_rect)
     all_sprites.draw(screen)
-    pygame.display.update()
-
+    draw_text(screen, str(score), 18, xsc / 2, 10)
+    draw_lives(screen, xsc - 100, 5, gun.healf,
+               player_mini_img)
     # Проверка, не ударил ли моб игрокa
-    hits = pygame.sprite.spritecollide(gun, bombs, False)
-    if hits:
+    hits = pygame.sprite.spritecollide(gun, bombs, True)
+    for hit in hits:
+        healf_snd.play()
+        gun.healf -= 1
+        death_explosion = Explosion(gun.rect.center, 'gun')
+        all_sprites.add(death_explosion)
+        gun.hide()
+        # Если игрок умер, игра окончена
+    if gun.healf == 0 and not death_explosion.alive():
         runGame = False
     # Проверка столкновения пули с мишенью
     hits = pygame.sprite.groupcollide(mobs, bullets, True, True)
     for hit in hits:
+        score += 10
+        choice(explos_snd).play()
+        exp = Explosion(hit.rect.center, 'lg')
+        all_sprites.add(exp)
         m = Target()
         all_sprites.add(m)
         mobs.add(m)
