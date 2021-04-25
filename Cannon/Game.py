@@ -1,7 +1,7 @@
 import pygame
 from random import randint, choice
 from os import path
-
+# Настройки экрана
 pygame.init()
 xsc = 600
 ysc = 800
@@ -51,10 +51,14 @@ for i in range(9):
     explosion_anim['gun'].append(img)
 
 
+# Игровые классы
 class Cannon(pygame.sprite.Sprite):
-    def __init__(self, xg, yg, angle=0):
+    """
+         Класс пушки. Отрисовка и движения игрока на экране.
+         Вызов выстрела
+    """
+    def __init__(self, xg, yg, ):
         pygame.sprite.Sprite.__init__(self)
-        self.angle = angle
         self.image = player_img
         self.image = pygame.transform.scale(player_img, (50, 38))
         self.image.set_colorkey((0, 0, 0))
@@ -103,6 +107,9 @@ class Cannon(pygame.sprite.Sprite):
 
 
 class Shell(pygame.sprite.Sprite):
+    """
+         Класс снаряда игрока
+    """
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
         self.image = bullet_img
@@ -120,6 +127,9 @@ class Shell(pygame.sprite.Sprite):
 
 
 class Target(pygame.sprite.Sprite):
+    """
+         Класс врагов. Перемещение, отрисовка и вызов бомбы
+    """
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.transform.scale(pygame.transform.rotate(Bad[randint(0, len(Bad)-1)], 180), (50, 35))
@@ -165,13 +175,16 @@ class Target(pygame.sprite.Sprite):
 
 
 class Bomb(pygame.sprite.Sprite):
+    """
+        Класс бомбы. Отрисовка и перемещение
+    """
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.transform.scale(bomb_img, (8, 15))
         self.rect = self.image.get_rect()
         self.rect.centerx = x
         self.rect.bottom = y
-        self.speedy = randint(8, 15)
+        self.speedy = randint(12, 20)
 
     def update(self):
         self.rect.y += self.speedy
@@ -180,6 +193,9 @@ class Bomb(pygame.sprite.Sprite):
 
 
 class Explosion(pygame.sprite.Sprite):
+    """
+        Отрисовка взрывов
+    """
     def __init__(self, center, size):
         pygame.sprite.Sprite.__init__(self)
         self.size = size
@@ -204,15 +220,20 @@ class Explosion(pygame.sprite.Sprite):
                 self.rect.center = center
 
 
+# Функции вывода текста на экран
 def draw_text(surf, text, size, x, y):
+    """ Функция отрисовки  текста на экране
+    """
     font = pygame.font.Font(font_name, size)
-    text_surface = font.render(text, True, (255, 255, 255))
+    text_surface = font.render(text, True, (90, 203, 72))
     text_rect = text_surface.get_rect()
     text_rect.midtop = (x, y)
     surf.blit(text_surface, text_rect)
 
 
 def draw_lives(surf, x, y, lives, img0):
+    """Функция отрисовки жизней игрока на экране
+    """
     for s in range(lives):
         img0_rect = img0.get_rect()
         img0_rect.x = x + 30 * s
@@ -220,9 +241,30 @@ def draw_lives(surf, x, y, lives, img0):
         surf.blit(img0, img0_rect)
 
 
-# Цикл игры
-# задание размера экрана
+def show_go_screen():
+    """Функция, которая отрисовывает экран начала и окончания игры
+    """
+    screen.blit(background, background_rect)
+    draw_text(screen, "NEW GAME!", 64, xsc / 2, ysc / 4)
+    draw_text(screen, "Arrow keys move, Space to fire", 22,
+              xsc / 2, ysc / 2)
+    draw_text(screen, "Press a key to begin", 18, xsc / 2, ysc * 3 / 4)
+    pygame.display.flip()
+    waiting = True
+    while waiting:
+        clock.tick(FPS)
+        for ivent in pygame.event.get():
+            if ivent.type == pygame.QUIT:
+                pygame.quit()
+            if ivent.type == pygame.KEYUP:
+                waiting = False
 
+
+# Первичные установки
+
+score_max = open("C:\\Users\\ВАНЯ\\Proba-2021\\Cannon\\scroe.txt")
+score_rec = int(score_max.read())
+score_max.close()
 
 pygame.display.set_caption('Cannon')
 all_sprites = pygame.sprite.Group()
@@ -243,11 +285,33 @@ for i in range(3):
     
 clock = pygame.time.Clock()
 pygame.mixer.music.play(loops=-1)
+game_over = True
 runGame = True
 
-
+# главный цикл игры
 while runGame:
     clock.tick(FPS)
+    # Окно  Game Over  при окончании игры
+    if game_over:
+        score_max = open("C:\\Users\\ВАНЯ\\Proba-2021\\Cannon\\scroe.txt")
+        score_rec = int(score_max.read())
+        score_max.close()
+        show_go_screen()
+        game_over = False
+        all_sprites = pygame.sprite.Group()
+        mobs = pygame.sprite.Group()
+        bullets = pygame.sprite.Group()
+        bombs = pygame.sprite.Group()
+        gun = Cannon(xsc, ysc)
+        all_sprites.add(gun)
+        for i in range(3):
+            m = Target()
+            all_sprites.add(m)
+            mobs.add(m)
+        score = 0
+        flag_mob = 0
+        wrag = 1
+
     # добавление моба при наборе +100 очков
     if score // 100 == wrag:
         flag_mob = 1
@@ -274,6 +338,7 @@ while runGame:
     screen.blit(background, background_rect)
     all_sprites.draw(screen)
     draw_text(screen, str(score), 18, xsc / 2, 10)
+    draw_text(screen, "Record: "+str(score_rec), 20, 55, 10)
     draw_lives(screen, xsc - 100, 5, gun.healf,
                player_mini_img)
     # Проверка, не ударил ли моб игрокa
@@ -284,9 +349,13 @@ while runGame:
         death_explosion = Explosion(gun.rect.center, 'gun')
         all_sprites.add(death_explosion)
         gun.hide()
-        # Если игрок умер, игра окончена
+    # Если игрок умер, игра окончена
     if gun.healf == 0 and not death_explosion.alive():
-        runGame = False
+        game_over = True
+        if score > score_rec:
+            score_max = open("C:\\Users\\ВАНЯ\\Proba-2021\\Cannon\\scroe.txt", 'w')
+            score_max.write(str(score))
+            score_max.close()
     # Проверка столкновения пули с мишенью
     hits = pygame.sprite.groupcollide(mobs, bullets, True, True)
     for hit in hits:
@@ -300,7 +369,6 @@ while runGame:
 
     # После отрисовки всего, переворачиваем экран
     pygame.display.flip()
-
 
 # Выход из игры:
 pygame.quit()
