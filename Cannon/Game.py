@@ -1,51 +1,66 @@
 import pygame
 from random import randint, choice
 from os import path
+
 # Настройки экрана
 pygame.init()
 xsc = 600
-ysc = 800
+ysc = 700
 FPS = 35
 SCREEN_SIZE = [xsc, ysc]
 screen = pygame.display.set_mode((xsc, ysc))
 pygame.mixer.init()
+
 # Загрузка всех изображений
-img_dir = path.join(path.dirname(__file__), 'C:\\Users\\ВАНЯ\\Proba-2021\\img')
+img_dir = path.join(path.dirname(__file__), 'C:\\Users\\User\\Proba-2021\\img')
 snd_dir = path.join(path.dirname(__file__), 'snd')
 Bad = []
-background = pygame.image.load(path.join(img_dir, "C:\\Users\\ВАНЯ\\Proba-2021\\img\\back.png")).convert()
+Bad_ufo = []
+background = pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\back.png")).convert()
 background_rect = background.get_rect()
-player_img = pygame.image.load(path.join(img_dir, "C:\\Users\\ВАНЯ\\Proba-2021\\img\\playerShip1_orange.png")).convert()
+player_img = pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\playerShip1_orange.png")).convert()
 player_mini_img = pygame.transform.scale(player_img, (25, 19))
 player_mini_img.set_colorkey((0, 0, 0))
-Bad.append(pygame.image.load(path.join(img_dir, "C:\\Users\\ВАНЯ\\Proba-2021\\img\\playerShip1_blue.png")).convert())
-Bad.append(pygame.image.load(path.join(img_dir, "C:\\Users\\ВАНЯ\\Proba-2021\\img\\playerShip1_green.png")).convert())
-Bad.append(pygame.image.load(path.join(img_dir, "C:\\Users\\ВАНЯ\\Proba-2021\\img\\playerShip1_red.png")).convert())
-Bad.append(pygame.image.load(path.join(img_dir, "C:\\Users\\ВАНЯ\\Proba-2021\\img\\playerShip3_orange.png")).convert())
+Bad.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\Enemies\\enemyRed1.png")).convert())
+Bad.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\Enemies\\enemyRed2.png")).convert())
+Bad.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\Enemies\\enemyRed5.png")).convert())
+Bad.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\"
+                                                "Proba-2021\\img\\Enemies\\enemyBlack1.png")).convert())
+Bad.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\"
+                                                "img\\Enemies\\enemyBlack2.png")).convert())
+Bad.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\"
+                                                "Enemies\\enemyBlack4.png")).convert())
+Bad.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\Enemies\\enemyBlue1.png")).convert())
+Bad.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\Enemies\\enemyBlue2.png")).convert())
+Bad.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\Enemies\\enemyBlue3.png")).convert())
+Bad_ufo.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\ufoBlue.png")).convert())
+Bad_ufo.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\ufoGreen.png")).convert())
+Bad_ufo.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\ufoRed.png")).convert())
+Bad_ufo.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\ufoYellow.png")).convert())
 bullet_img = pygame.image.load(path.join(img_dir,
-                                         "C:\\Users\\ВАНЯ\\Proba-2021\\img\\Lasers\\laserGreen10.png")).convert()
-bomb_img = pygame.image.load(path.join(img_dir, "C:\\Users\\ВАНЯ\\Proba-2021\\img\\Lasers\\laserBlue12.png")).convert()
-shoot_gun_sound = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\ВАНЯ\\Proba-2021\\snd\\Laser_Shoot_gun.wav"))
-shoot_bomb_sound = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\ВАНЯ\\Proba-2021\\snd\\Laser_Shoot_bomb.wav"))
-exp_sound = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\ВАНЯ\\Proba-2021\\snd\\Explosion.wav"))
-exp2_sound = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\ВАНЯ\\Proba-2021\\snd\\Explosion2.wav"))
-healf_snd = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\ВАНЯ\\Proba-2021\\snd\\Explosion5.wav"))
+                                         "C:\\Users\\User\\Proba-2021\\img\\Lasers\\laserGreen10.png")).convert()
+bomb_img = pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\Lasers\\laserBlue12.png")).convert()
+shoot_gun_sound = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\User\\Proba-2021\\snd\\Laser_Shoot_gun.wav"))
+shoot_bomb_sound = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\User\\Proba-2021\\snd\\Laser_Shoot_bomb.wav"))
+exp_sound = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\User\\Proba-2021\\snd\\Explosion.wav"))
+exp2_sound = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\User\\Proba-2021\\snd\\Explosion2.wav"))
+healf_snd = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\User\\Proba-2021\\snd\\Explosion5.wav"))
 explos_snd = [exp_sound, exp2_sound]
-pygame.mixer.music.load(path.join(snd_dir, "C:\\Users\\ВАНЯ\\Proba-2021\\snd\\POL-fortress-short.wav"))
+pygame.mixer.music.load(path.join(snd_dir, "C:\\Users\\User\\Proba-2021\\snd\\POL-fortress-short.wav"))
 pygame.mixer.music.set_volume(0.6)
 explosion_anim = dict()
 explosion_anim['lg'] = []
 explosion_anim['sm'] = []
 explosion_anim['gun'] = []
 for i in range(9):
-    filename = "C:\\Users\\ВАНЯ\\Proba-2021\\img\\Explosive\\regularExplosion0{}.png".format(i)
+    filename = "C:\\Users\\User\\Proba-2021\\img\\Explosive\\regularExplosion0{}.png".format(i)
     img = pygame.image.load(path.join(img_dir, filename)).convert()
     img.set_colorkey((0, 0, 0))
     img_lg = pygame.transform.scale(img, (75, 75))
     explosion_anim['lg'].append(img_lg)
     img_sm = pygame.transform.scale(img, (32, 32))
     explosion_anim['sm'].append(img_sm)
-    filename = "C:\\Users\\ВАНЯ\\Proba-2021\\img\\Explosive\\sonicExplosion0{}.png".format(i)
+    filename = "C:\\Users\\User\\Proba-2021\\img\\Explosive\\sonicExplosion0{}.png".format(i)
     img = pygame.image.load(path.join(img_dir, filename)).convert()
     img.set_colorkey((0, 0, 0))
     explosion_anim['gun'].append(img)
@@ -64,7 +79,7 @@ class Cannon(pygame.sprite.Sprite):
         self.image.set_colorkey((0, 0, 0))
         self.rect = self.image.get_rect()
         self.radius = 20
-        self.rect.bottom = yg*0.95
+        self.rect.bottom = yg*0.98
         self.rect.centerx = xg/2
         self.healf = 3
         self.speedx = 0
@@ -78,7 +93,7 @@ class Cannon(pygame.sprite.Sprite):
         if self.hidden and pygame.time.get_ticks() - self.hide_timer > 1000:
             self.hidden = False
             self.rect.centerx = xsc / 2
-            self.rect.bottom = ysc * 0.95
+            self.rect.bottom = ysc * 0.98
         self.speedx = 0
         keystate = pygame.key.get_pressed()
         if keystate[pygame.K_a]:
@@ -132,7 +147,7 @@ class Target(pygame.sprite.Sprite):
     """
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.transform.scale(pygame.transform.rotate(Bad[randint(0, len(Bad)-1)], 180), (50, 35))
+        self.image = pygame.transform.scale(Bad[randint(0, len(Bad)-1)], (50, 35))
         self.image.set_colorkey((0, 0, 0))
         self.rect = self.image.get_rect()
         self.radius = int(self.rect.width * .85 / 2)
@@ -159,7 +174,7 @@ class Target(pygame.sprite.Sprite):
         elif self.rect.x < 15:
             self.flag_x = 0
             self.speedy = randint(5, 15)
-        if self.rect.y > 0.6*ysc - 15:
+        if self.rect.y > 0.6*ysc:
             self.flag_y = 0
             self.speedy = randint(5, 15)
         elif self.rect.y < 15:
@@ -168,6 +183,49 @@ class Target(pygame.sprite.Sprite):
 
         k = randint(0, 1000)
         if k < 10:
+            bomb = Bomb(self.rect.x, self.rect.y)
+            all_sprites.add(bomb)
+            bombs.add(bomb)
+            shoot_bomb_sound.play()
+
+
+class TargetUfo(pygame.sprite.Sprite):
+    """
+         Класс врагов. Перемещение, отрисовка и вызов бомбы
+    """
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.transform.scale(Bad_ufo[randint(0, len(Bad_ufo)-1)], (50, 50))
+        self.image.set_colorkey((0, 0, 0))
+        self.rect = self.image.get_rect()
+        self.radius = int(self.rect.width * 0.9 / 2)
+
+        self.rect.bottom = randint(100, 400)
+        self.speedy = randint(8, 18)
+        self.healf = 4
+        self.flag_x = randint(0, 2)
+        self.flag_y = randint(0, 2)
+        if self.flag_x == 0:
+            self.rect.centerx = randint(-50, 0)
+        else:
+            self.rect.centerx = randint(xsc, xsc+50)
+
+    def update(self):
+        if self.flag_x == 0:
+            self.rect.x += self.speedy
+            if self.rect.x > xsc + 50:
+                self.kill()
+        else:
+            self.rect.x -= self.speedy
+            if self.rect.x < -50:
+                self.kill()
+        if self.flag_y == 0:
+            self.rect.y += self.speedy/4
+        else:
+            self.rect.y -= self.speedy/4
+
+        k = randint(0, 1000)
+        if k < 100:
             bomb = Bomb(self.rect.x, self.rect.y)
             all_sprites.add(bomb)
             bombs.add(bomb)
@@ -262,7 +320,7 @@ def show_go_screen():
 
 # Первичные установки
 
-score_max = open("C:\\Users\\ВАНЯ\\Proba-2021\\Cannon\\scroe.txt")
+score_max = open("C:\\Users\\User\\Proba-2021\\Cannon\\scroe.txt")
 score_rec = int(score_max.read())
 score_max.close()
 
@@ -278,7 +336,8 @@ bombs = pygame.sprite.Group()
 score = 0
 flag_mob = 0
 wrag = 1
-for i in range(3):
+score_wall = 10
+for i in range(2):
     m = Target()
     all_sprites.add(m)
     mobs.add(m)
@@ -291,12 +350,12 @@ runGame = True
 # главный цикл игры
 while runGame:
     clock.tick(FPS)
+
     # Окно  Game Over  при окончании игры
     if game_over:
-        score_max = open("C:\\Users\\ВАНЯ\\Proba-2021\\Cannon\\scroe.txt")
+        score_max = open("C:\\Users\\User\\Proba-2021\\Cannon\\scroe.txt")
         score_rec = int(score_max.read())
         score_max.close()
-        show_go_screen()
         game_over = False
         all_sprites = pygame.sprite.Group()
         mobs = pygame.sprite.Group()
@@ -304,16 +363,24 @@ while runGame:
         bombs = pygame.sprite.Group()
         gun = Cannon(xsc, ysc)
         all_sprites.add(gun)
-        for i in range(3):
+        for i in range(2):
             m = Target()
             all_sprites.add(m)
             mobs.add(m)
         score = 0
         flag_mob = 0
         wrag = 1
+        score_wall = 10
+        show_go_screen()
+    # Вызов нло
+    if score > score_wall:
+        c = TargetUfo()
+        all_sprites.add(c)
+        mobs.add(c)
+        score_wall += randint(60, 120)
 
-    # добавление моба при наборе +100 очков
-    if score // 100 == wrag:
+    # добавление моба при наборе очков
+    if score // 120 == wrag:
         flag_mob = 1
         score += 1
         wrag += 1
@@ -338,7 +405,7 @@ while runGame:
     screen.blit(background, background_rect)
     all_sprites.draw(screen)
     draw_text(screen, str(score), 18, xsc / 2, 10)
-    draw_text(screen, "Record: "+str(score_rec), 20, 55, 10)
+    draw_text(screen, "Record: "+str(score_rec), 20, 60, 10)
     draw_lives(screen, xsc - 100, 5, gun.healf,
                player_mini_img)
     # Проверка, не ударил ли моб игрокa
@@ -353,19 +420,20 @@ while runGame:
     if gun.healf == 0 and not death_explosion.alive():
         game_over = True
         if score > score_rec:
-            score_max = open("C:\\Users\\ВАНЯ\\Proba-2021\\Cannon\\scroe.txt", 'w')
+            score_max = open("C:\\Users\\User\\Proba-2021\\Cannon\\scroe.txt", 'w')
             score_max.write(str(score))
             score_max.close()
     # Проверка столкновения пули с мишенью
     hits = pygame.sprite.groupcollide(mobs, bullets, True, True)
     for hit in hits:
-        score += 10
+        score += 10 if hit.__class__.__name__ == 'Target' else 20
         choice(explos_snd).play()
         exp = Explosion(hit.rect.center, 'lg')
         all_sprites.add(exp)
-        m = Target()
-        all_sprites.add(m)
-        mobs.add(m)
+        if hit.__class__.__name__ == 'Target':
+            m = Target()
+            all_sprites.add(m)
+            mobs.add(m)
 
     # После отрисовки всего, переворачиваем экран
     pygame.display.flip()
