@@ -1,5 +1,5 @@
 import pygame
-from random import randint, choice
+from random import randint, choice, random
 from os import path
 
 # Настройки экрана
@@ -10,33 +10,40 @@ FPS = 35
 SCREEN_SIZE = [xsc, ysc]
 screen = pygame.display.set_mode((xsc, ysc))
 pygame.mixer.init()
+POWERUP_TIME = 5000
 
 # Загрузка всех изображений
 img_dir = path.join(path.dirname(__file__), 'C:\\Users\\User\\Proba-2021\\img')
 snd_dir = path.join(path.dirname(__file__), 'snd')
-Bad = []
-Bad_ufo = []
+Enemy = []
+Enemy_ufo = []
 background = pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\back.png")).convert()
 background_rect = background.get_rect()
 player_img = pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\playerShip1_orange.png")).convert()
 player_mini_img = pygame.transform.scale(player_img, (25, 19))
 player_mini_img.set_colorkey((0, 0, 0))
-Bad.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\Enemies\\enemyRed1.png")).convert())
-Bad.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\Enemies\\enemyRed2.png")).convert())
-Bad.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\Enemies\\enemyRed5.png")).convert())
-Bad.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\"
+Enemy.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\"
+                                                  "Enemies\\enemyRed1.png")).convert())
+Enemy.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\"
+                                                  "Enemies\\enemyRed2.png")).convert())
+Enemy.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\"
+                                                  "Enemies\\enemyRed5.png")).convert())
+Enemy.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\"
                                                 "Proba-2021\\img\\Enemies\\enemyBlack1.png")).convert())
-Bad.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\"
+Enemy.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\"
                                                 "img\\Enemies\\enemyBlack2.png")).convert())
-Bad.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\"
+Enemy.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\"
                                                 "Enemies\\enemyBlack4.png")).convert())
-Bad.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\Enemies\\enemyBlue1.png")).convert())
-Bad.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\Enemies\\enemyBlue2.png")).convert())
-Bad.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\Enemies\\enemyBlue3.png")).convert())
-Bad_ufo.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\ufoBlue.png")).convert())
-Bad_ufo.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\ufoGreen.png")).convert())
-Bad_ufo.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\ufoRed.png")).convert())
-Bad_ufo.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\ufoYellow.png")).convert())
+Enemy.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\"
+                                                  "Enemies\\enemyBlue1.png")).convert())
+Enemy.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\"
+                                                  "Enemies\\enemyBlue2.png")).convert())
+Enemy.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\"
+                                                  "Enemies\\enemyBlue3.png")).convert())
+Enemy_ufo.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\ufoBlue.png")).convert())
+Enemy_ufo.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\ufoGreen.png")).convert())
+Enemy_ufo.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\ufoRed.png")).convert())
+Enemy_ufo.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\ufoYellow.png")).convert())
 bullet_img = pygame.image.load(path.join(img_dir,
                                          "C:\\Users\\User\\Proba-2021\\img\\Lasers\\laserGreen10.png")).convert()
 bomb_img = pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\Lasers\\laserBlue12.png")).convert()
@@ -47,6 +54,15 @@ exp2_sound = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\User\\Proba-2021\
 healf_snd = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\User\\Proba-2021\\snd\\Explosion5.wav"))
 explos_snd = [exp_sound, exp2_sound]
 pygame.mixer.music.load(path.join(snd_dir, "C:\\Users\\User\\Proba-2021\\snd\\POL-fortress-short.wav"))
+
+powerup_images = {}
+powerup_images['live'] = pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\"
+                                                              "img\\UI\\playerLife1_red.png")).convert()
+powerup_images['gun'] = pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\"
+                                                             "img\\Power-ups\\powerupYellow_bolt.png")).convert()
+live_sound = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\User\\Proba-2021\\snd\\Powerup2.wav"))
+power_sound = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\User\\Proba-2021\\snd\\Powerup3.wav"))
+
 pygame.mixer.music.set_volume(0.6)
 explosion_anim = dict()
 explosion_anim['lg'] = []
@@ -88,6 +104,12 @@ class Cannon(pygame.sprite.Sprite):
         self.up_gun = [self.rect.centerx, self.rect.bottom-50]
         self.hidden = False
         self.hide_timer = pygame.time.get_ticks()
+        self.power = 1
+        self.power_time = pygame.time.get_ticks()
+
+    def powerup(self):
+        self.power += 1
+        self.power_time = pygame.time.get_ticks()
 
     def update(self):
         if self.hidden and pygame.time.get_ticks() - self.hide_timer > 1000:
@@ -103,6 +125,10 @@ class Cannon(pygame.sprite.Sprite):
         self.rect.x += self.speedx
         if keystate[pygame.K_SPACE]:
             self.strike()
+        # тайм-аут для бонусов
+        if self.power >= 2 and pygame.time.get_ticks() - self.power_time > POWERUP_TIME:
+            self.power -= 1
+            self.power_time = pygame.time.get_ticks()
 
     def strike(self):
         now = pygame.time.get_ticks()
@@ -112,6 +138,16 @@ class Cannon(pygame.sprite.Sprite):
                 bullet = Shell(self.rect.centerx, self.rect.top)
                 all_sprites.add(bullet)
                 bullets.add(bullet)
+                shoot_gun_sound.play()
+            if self.power >= 2:
+                bullets.remove(bullet)
+                all_sprites.remove(bullet)
+                bullet1 = Shell(self.rect.left, self.rect.centery)
+                bullet2 = Shell(self.rect.right, self.rect.centery)
+                all_sprites.add(bullet1)
+                all_sprites.add(bullet2)
+                bullets.add(bullet1)
+                bullets.add(bullet2)
                 shoot_gun_sound.play()
 
     def hide(self):
@@ -147,7 +183,7 @@ class Target(pygame.sprite.Sprite):
     """
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.transform.scale(Bad[randint(0, len(Bad)-1)], (50, 35))
+        self.image = pygame.transform.scale(Enemy[randint(0, len(Enemy) - 1)], (50, 35))
         self.image.set_colorkey((0, 0, 0))
         self.rect = self.image.get_rect()
         self.radius = int(self.rect.width * .85 / 2)
@@ -195,7 +231,7 @@ class TargetUfo(pygame.sprite.Sprite):
     """
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.transform.scale(Bad_ufo[randint(0, len(Bad_ufo)-1)], (50, 50))
+        self.image = pygame.transform.scale(Enemy_ufo[randint(0, len(Enemy_ufo) - 1)], (50, 50))
         self.image.set_colorkey((0, 0, 0))
         self.rect = self.image.get_rect()
         self.radius = int(self.rect.width * 0.9 / 2)
@@ -250,6 +286,25 @@ class Bomb(pygame.sprite.Sprite):
             self.kill()
 
 
+class PowerUp(pygame.sprite.Sprite):
+    """
+        Класс улучшений. Отрисовка и перемещение
+    """
+    def __init__(self, center):
+        pygame.sprite.Sprite.__init__(self )
+        self.type = choice(['live', 'gun'])
+        self.image = powerup_images[self.type]
+        self.image.set_colorkey((0, 0, 0))
+        self.rect = self.image.get_rect()
+        self.rect.center = center
+        self.speedy = 8
+
+    def update(self):
+        self.rect.y += self.speedy
+        if self.rect.bottom > ysc:
+            self.kill()
+
+
 class Explosion(pygame.sprite.Sprite):
     """
         Отрисовка взрывов
@@ -294,7 +349,7 @@ def draw_lives(surf, x, y, lives, img0):
     """
     for s in range(lives):
         img0_rect = img0.get_rect()
-        img0_rect.x = x + 30 * s
+        img0_rect.x = x - 30 * s
         img0_rect.y = y
         surf.blit(img0, img0_rect)
 
@@ -333,6 +388,7 @@ all_sprites.add(gun)
 mobs = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
 bombs = pygame.sprite.Group()
+powerups = pygame.sprite.Group()
 score = 0
 flag_mob = 0
 wrag = 1
@@ -361,6 +417,7 @@ while runGame:
         mobs = pygame.sprite.Group()
         bullets = pygame.sprite.Group()
         bombs = pygame.sprite.Group()
+        powerups = pygame.sprite.Group()
         gun = Cannon(xsc, ysc)
         all_sprites.add(gun)
         for i in range(2):
@@ -406,9 +463,9 @@ while runGame:
     all_sprites.draw(screen)
     draw_text(screen, str(score), 18, xsc / 2, 10)
     draw_text(screen, "Record: "+str(score_rec), 20, 60, 10)
-    draw_lives(screen, xsc - 100, 5, gun.healf,
+    draw_lives(screen, xsc - 30, 5, gun.healf,
                player_mini_img)
-    # Проверка, не ударил ли моб игрокa
+    # Проверка, не попала ли бомба в игрока
     hits = pygame.sprite.spritecollide(gun, bombs, True)
     for hit in hits:
         healf_snd.play()
@@ -416,6 +473,7 @@ while runGame:
         death_explosion = Explosion(gun.rect.center, 'gun')
         all_sprites.add(death_explosion)
         gun.hide()
+        gun.power = 1
     # Если игрок умер, игра окончена
     if gun.healf == 0 and not death_explosion.alive():
         game_over = True
@@ -434,6 +492,25 @@ while runGame:
             m = Target()
             all_sprites.add(m)
             mobs.add(m)
+        if hit.__class__.__name__ == 'TargetUfo':
+            pow = PowerUp(hit.rect.center)
+            all_sprites.add(pow)
+            powerups.add(pow)
+        if random() > 0.95:
+            pow = PowerUp(hit.rect.center)
+            all_sprites.add(pow)
+            powerups.add(pow)
+
+    hits = pygame.sprite.spritecollide(gun, powerups, True)
+    for hit in hits:
+        if hit.type == 'live':
+            gun.healf += 1
+            live_sound.play()
+            if gun.healf >= 4:
+                gun.healf = 4
+        if hit.type == 'gun':
+            gun.powerup()
+            power_sound.play()
 
     # После отрисовки всего, переворачиваем экран
     pygame.display.flip()
