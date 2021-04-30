@@ -4,7 +4,7 @@ from os import path
 
 # Настройки экрана
 pygame.init()
-xsc = 600
+xsc = 700
 ysc = 700
 FPS = 35
 SCREEN_SIZE = [xsc, ysc]
@@ -12,7 +12,7 @@ screen = pygame.display.set_mode((xsc, ysc))
 pygame.mixer.init()
 POWERUP_TIME = 5000
 
-# Загрузка всех изображений
+# Загрузка всех изображений(Указать свой путь расположения !!!)
 img_dir = path.join(path.dirname(__file__), 'C:\\Users\\User\\Proba-2021\\img')
 snd_dir = path.join(path.dirname(__file__), 'snd')
 Enemy = []
@@ -29,11 +29,11 @@ Enemy.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\
 Enemy.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\"
                                                   "Enemies\\enemyRed5.png")).convert())
 Enemy.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\"
-                                                "Proba-2021\\img\\Enemies\\enemyBlack1.png")).convert())
+                                                  "Proba-2021\\img\\Enemies\\enemyBlack1.png")).convert())
 Enemy.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\"
-                                                "img\\Enemies\\enemyBlack2.png")).convert())
+                                                  "img\\Enemies\\enemyBlack2.png")).convert())
 Enemy.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\"
-                                                "Enemies\\enemyBlack4.png")).convert())
+                                                  "Enemies\\enemyBlack4.png")).convert())
 Enemy.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\"
                                                   "Enemies\\enemyBlue1.png")).convert())
 Enemy.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\"
@@ -55,13 +55,16 @@ healf_snd = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\User\\Proba-2021\\
 explos_snd = [exp_sound, exp2_sound]
 pygame.mixer.music.load(path.join(snd_dir, "C:\\Users\\User\\Proba-2021\\snd\\POL-fortress-short.wav"))
 
-powerup_images = {}
+powerup_images = dict()
 powerup_images['live'] = pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\"
                                                               "img\\UI\\playerLife1_red.png")).convert()
 powerup_images['gun'] = pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\"
                                                              "img\\Power-ups\\powerupYellow_bolt.png")).convert()
+powerup_images['star'] = pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\Power-ups\\"
+                                                              "powerupBlue_star.png")).convert()
 live_sound = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\User\\Proba-2021\\snd\\Powerup2.wav"))
 power_sound = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\User\\Proba-2021\\snd\\Powerup3.wav"))
+power_enemy = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\User\\Proba-2021\\snd\\Pickup_Coin3.wav"))
 
 pygame.mixer.music.set_volume(0.6)
 explosion_anim = dict()
@@ -123,6 +126,10 @@ class Cannon(pygame.sprite.Sprite):
         if keystate[pygame.K_d]:
             self.speedx = 8
         self.rect.x += self.speedx
+        if self.rect.right > xsc:
+            self.rect.right = xsc
+        if self.rect.left < 0:
+            self.rect.left = 0
         if keystate[pygame.K_SPACE]:
             self.strike()
         # тайм-аут для бонусов
@@ -291,8 +298,8 @@ class PowerUp(pygame.sprite.Sprite):
         Класс улучшений. Отрисовка и перемещение
     """
     def __init__(self, center):
-        pygame.sprite.Sprite.__init__(self )
-        self.type = choice(['live', 'gun'])
+        pygame.sprite.Sprite.__init__(self)
+        self.type = choice(['live', 'gun', 'star'])
         self.image = powerup_images[self.type]
         self.image.set_colorkey((0, 0, 0))
         self.rect = self.image.get_rect()
@@ -388,10 +395,10 @@ all_sprites.add(gun)
 mobs = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
 bombs = pygame.sprite.Group()
-powerups = pygame.sprite.Group()
+power_up = pygame.sprite.Group()
 score = 0
 flag_mob = 0
-wrag = 1
+enemy_screen = 1
 score_wall = 10
 for i in range(2):
     m = Target()
@@ -417,7 +424,7 @@ while runGame:
         mobs = pygame.sprite.Group()
         bullets = pygame.sprite.Group()
         bombs = pygame.sprite.Group()
-        powerups = pygame.sprite.Group()
+        power_up = pygame.sprite.Group()
         gun = Cannon(xsc, ysc)
         all_sprites.add(gun)
         for i in range(2):
@@ -426,7 +433,7 @@ while runGame:
             mobs.add(m)
         score = 0
         flag_mob = 0
-        wrag = 1
+        enemy_screen = 1
         score_wall = 10
         show_go_screen()
     # Вызов нло
@@ -437,10 +444,10 @@ while runGame:
         score_wall += randint(60, 120)
 
     # добавление моба при наборе очков
-    if score // 120 == wrag:
+    if score // 120 == enemy_screen:
         flag_mob = 1
         score += 1
-        wrag += 1
+        enemy_screen += 1
     if flag_mob == 1:
         m = Target()
         all_sprites.add(m)
@@ -495,13 +502,14 @@ while runGame:
         if hit.__class__.__name__ == 'TargetUfo':
             pow = PowerUp(hit.rect.center)
             all_sprites.add(pow)
-            powerups.add(pow)
+            power_up.add(pow)
         if random() > 0.95:
             pow = PowerUp(hit.rect.center)
             all_sprites.add(pow)
-            powerups.add(pow)
+            power_up.add(pow)
 
-    hits = pygame.sprite.spritecollide(gun, powerups, True)
+# столкновения с улучшениями
+    hits = pygame.sprite.spritecollide(gun, power_up, True)
     for hit in hits:
         if hit.type == 'live':
             gun.healf += 1
@@ -511,8 +519,20 @@ while runGame:
         if hit.type == 'gun':
             gun.powerup()
             power_sound.play()
+        if hit.type == 'star':
+            power_enemy.play()
+            flag_mob = -1
 
-    # После отрисовки всего, переворачиваем экран
+        if flag_mob == -1 and len(mobs) > 2:
+            for s in all_sprites:
+                if s.__class__.__name__ == 'Target':
+                    choice(explos_snd).play()
+                    exp = Explosion(s.rect.center, 'lg')
+                    all_sprites.remove(s)
+                    mobs.remove(s)
+                    break
+
+    # переворачиваем экран
     pygame.display.flip()
 
 # Выход из игры:
