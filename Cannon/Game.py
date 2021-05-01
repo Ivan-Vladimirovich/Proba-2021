@@ -62,9 +62,12 @@ powerup_images['gun'] = pygame.image.load(path.join(img_dir, "C:\\Users\\User\\P
                                                              "img\\Power-ups\\powerupYellow_bolt.png")).convert()
 powerup_images['star'] = pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\Power-ups\\"
                                                               "powerupBlue_star.png")).convert()
+powerup_images['speed'] = pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\Power-ups\\"
+                                                              "powerupGreen_bolt.png")).convert()
 live_sound = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\User\\Proba-2021\\snd\\Powerup2.wav"))
 power_sound = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\User\\Proba-2021\\snd\\Powerup3.wav"))
 power_enemy = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\User\\Proba-2021\\snd\\Pickup_Coin3.wav"))
+power_speed_sound = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\User\\Proba-2021\\snd\\Pickup_Coin.wav"))
 
 pygame.mixer.music.set_volume(0.6)
 explosion_anim = dict()
@@ -86,6 +89,7 @@ for i in range(9):
 
 
 # Игровые классы
+# класс игрока
 class Cannon(pygame.sprite.Sprite):
     """
          Класс пушки. Отрисовка и движения игрока на экране.
@@ -109,10 +113,17 @@ class Cannon(pygame.sprite.Sprite):
         self.hide_timer = pygame.time.get_ticks()
         self.power = 1
         self.power_time = pygame.time.get_ticks()
+        self.speed_dt = 8
+        self.speed = 1
+        self.power_speed_time = pygame.time.get_ticks()
 
     def powerup(self):
         self.power += 1
         self.power_time = pygame.time.get_ticks()
+
+    def powerup_speed(self):
+        self.speed += 1
+        self.power_speed_time = pygame.time.get_ticks()
 
     def update(self):
         if self.hidden and pygame.time.get_ticks() - self.hide_timer > 1000:
@@ -122,9 +133,15 @@ class Cannon(pygame.sprite.Sprite):
         self.speedx = 0
         keystate = pygame.key.get_pressed()
         if keystate[pygame.K_a]:
-            self.speedx = -8
+            if self.speed >= 2:
+                self.speedx = -self.speed_dt * 2
+            else:
+                self.speedx = -self.speed_dt
         if keystate[pygame.K_d]:
-            self.speedx = 8
+            if self.speed >= 2:
+                self.speedx = self.speed_dt * 2
+            else:
+                self.speedx = self.speed_dt
         self.rect.x += self.speedx
         if self.rect.right > xsc:
             self.rect.right = xsc
@@ -136,6 +153,9 @@ class Cannon(pygame.sprite.Sprite):
         if self.power >= 2 and pygame.time.get_ticks() - self.power_time > POWERUP_TIME:
             self.power -= 1
             self.power_time = pygame.time.get_ticks()
+        if self.speed >= 2 and pygame.time.get_ticks() - self.power_speed_time > POWERUP_TIME:
+            self.speed -= 1
+            self.power_speed_time = pygame.time.get_ticks()
 
     def strike(self):
         now = pygame.time.get_ticks()
@@ -164,6 +184,7 @@ class Cannon(pygame.sprite.Sprite):
         self.rect.center = (xsc / 2, ysc + 200)
 
 
+# класс снаряда
 class Shell(pygame.sprite.Sprite):
     """
          Класс снаряда игрока
@@ -184,6 +205,7 @@ class Shell(pygame.sprite.Sprite):
             self.kill()
 
 
+# класс мишеней
 class Target(pygame.sprite.Sprite):
     """
          Класс врагов. Перемещение, отрисовка и вызов бомбы
@@ -232,6 +254,7 @@ class Target(pygame.sprite.Sprite):
             shoot_bomb_sound.play()
 
 
+# класс мишеней нло
 class TargetUfo(pygame.sprite.Sprite):
     """
          Класс врагов. Перемещение, отрисовка и вызов бомбы
@@ -275,6 +298,7 @@ class TargetUfo(pygame.sprite.Sprite):
             shoot_bomb_sound.play()
 
 
+# класс бомбочек
 class Bomb(pygame.sprite.Sprite):
     """
         Класс бомбы. Отрисовка и перемещение
@@ -293,13 +317,14 @@ class Bomb(pygame.sprite.Sprite):
             self.kill()
 
 
+# класс улучшений
 class PowerUp(pygame.sprite.Sprite):
     """
         Класс улучшений. Отрисовка и перемещение
     """
     def __init__(self, center):
         pygame.sprite.Sprite.__init__(self)
-        self.type = choice(['live', 'gun', 'star'])
+        self.type = choice(['live', 'gun', 'star', 'speed'])
         self.image = powerup_images[self.type]
         self.image.set_colorkey((0, 0, 0))
         self.rect = self.image.get_rect()
@@ -312,6 +337,7 @@ class PowerUp(pygame.sprite.Sprite):
             self.kill()
 
 
+# класс отрисовки взрывов
 class Explosion(pygame.sprite.Sprite):
     """
         Отрисовка взрывов
@@ -481,6 +507,7 @@ while runGame:
         all_sprites.add(death_explosion)
         gun.hide()
         gun.power = 1
+        gun.speed = 1
     # Если игрок умер, игра окончена
     if gun.healf == 0 and not death_explosion.alive():
         game_over = True
@@ -522,6 +549,9 @@ while runGame:
         if hit.type == 'star':
             power_enemy.play()
             flag_mob = -1
+        if hit.type == 'speed':
+            gun.powerup_speed()
+            power_speed_sound.play()
 
         if flag_mob == -1 and len(mobs) > 2:
             for s in all_sprites:
