@@ -12,62 +12,49 @@ screen = pygame.display.set_mode((xsc, ysc))
 pygame.mixer.init()
 POWERUP_TIME = 5000
 
-# Загрузка всех изображений(Указать свой путь расположения !!!)
-img_dir = path.join(path.dirname(__file__), 'C:\\Users\\User\\Proba-2021\\img')
-snd_dir = path.join(path.dirname(__file__), 'snd')
+# Загрузка всех изображений
+img_dir = path.join(path.dirname(__file__), 'C:\\Users\\User\\Proba-2021\\img')  # Указать свой путь расположения !!!
+snd_dir = path.join(path.dirname(__file__), 'C:\\Users\\User\\Proba-2021\\snd')  # Указать свой путь расположения !!!
 Enemy = []
 Enemy_ufo = []
-background = pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\back.png")).convert()
+background = pygame.image.load(path.join(img_dir, "back.png")).convert()
 background_rect = background.get_rect()
-player_img = pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\playerShip1_orange.png")).convert()
+player_img = pygame.image.load(path.join(img_dir, "playerShip1_orange.png")).convert()
 player_mini_img = pygame.transform.scale(player_img, (25, 19))
 player_mini_img.set_colorkey((0, 0, 0))
-Enemy.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\"
-                                                  "Enemies\\enemyRed1.png")).convert())
-Enemy.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\"
-                                                  "Enemies\\enemyRed2.png")).convert())
-Enemy.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\"
-                                                  "Enemies\\enemyRed5.png")).convert())
-Enemy.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\"
-                                                  "Proba-2021\\img\\Enemies\\enemyBlack1.png")).convert())
-Enemy.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\"
-                                                  "img\\Enemies\\enemyBlack2.png")).convert())
-Enemy.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\"
-                                                  "Enemies\\enemyBlack4.png")).convert())
-Enemy.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\"
-                                                  "Enemies\\enemyBlue1.png")).convert())
-Enemy.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\"
-                                                  "Enemies\\enemyBlue2.png")).convert())
-Enemy.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\"
-                                                  "Enemies\\enemyBlue3.png")).convert())
-Enemy_ufo.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\ufoBlue.png")).convert())
-Enemy_ufo.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\ufoGreen.png")).convert())
-Enemy_ufo.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\ufoRed.png")).convert())
-Enemy_ufo.append(pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\ufoYellow.png")).convert())
-bullet_img = pygame.image.load(path.join(img_dir,
-                                         "C:\\Users\\User\\Proba-2021\\img\\Lasers\\laserGreen10.png")).convert()
-bomb_img = pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\Lasers\\laserBlue12.png")).convert()
-shoot_gun_sound = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\User\\Proba-2021\\snd\\Laser_Shoot_gun.wav"))
-shoot_bomb_sound = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\User\\Proba-2021\\snd\\Laser_Shoot_bomb.wav"))
-exp_sound = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\User\\Proba-2021\\snd\\Explosion.wav"))
-exp2_sound = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\User\\Proba-2021\\snd\\Explosion2.wav"))
-healf_snd = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\User\\Proba-2021\\snd\\Explosion5.wav"))
+Enemy.append(pygame.image.load(path.join(img_dir, "Enemies\\enemyRed1.png")).convert())
+Enemy.append(pygame.image.load(path.join(img_dir, "Enemies\\enemyRed2.png")).convert())
+Enemy.append(pygame.image.load(path.join(img_dir, "Enemies\\enemyRed5.png")).convert())
+Enemy.append(pygame.image.load(path.join(img_dir, "Enemies\\enemyBlack1.png")).convert())
+Enemy.append(pygame.image.load(path.join(img_dir, "Enemies\\enemyBlack2.png")).convert())
+Enemy.append(pygame.image.load(path.join(img_dir, "Enemies\\enemyBlack4.png")).convert())
+Enemy.append(pygame.image.load(path.join(img_dir, "Enemies\\enemyBlue1.png")).convert())
+Enemy.append(pygame.image.load(path.join(img_dir, "Enemies\\enemyBlue2.png")).convert())
+Enemy.append(pygame.image.load(path.join(img_dir, "Enemies\\enemyBlue3.png")).convert())
+Enemy_ufo.append(pygame.image.load(path.join(img_dir, "ufoBlue.png")).convert())
+Enemy_ufo.append(pygame.image.load(path.join(img_dir, "ufoGreen.png")).convert())
+Enemy_ufo.append(pygame.image.load(path.join(img_dir, "ufoRed.png")).convert())
+Enemy_ufo.append(pygame.image.load(path.join(img_dir, "ufoYellow.png")).convert())
+bullet_img = pygame.image.load(path.join(img_dir, "Lasers\\laserGreen10.png")).convert()
+bomb_img = pygame.image.load(path.join(img_dir, "Lasers\\laserBlue12.png")).convert()
+
+shoot_gun_sound = pygame.mixer.Sound(path.join(snd_dir, "Laser_Shoot_gun.wav"))
+shoot_bomb_sound = pygame.mixer.Sound(path.join(snd_dir, "Laser_Shoot_bomb.wav"))
+exp_sound = pygame.mixer.Sound(path.join(snd_dir, "Explosion.wav"))
+exp2_sound = pygame.mixer.Sound(path.join(snd_dir, "Explosion2.wav"))
+healf_snd = pygame.mixer.Sound(path.join(snd_dir, "Explosion5.wav"))
 explos_snd = [exp_sound, exp2_sound]
-pygame.mixer.music.load(path.join(snd_dir, "C:\\Users\\User\\Proba-2021\\snd\\POL-fortress-short.wav"))
+pygame.mixer.music.load(path.join(snd_dir, "POL-fortress-short.wav"))
 
 powerup_images = dict()
-powerup_images['live'] = pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\"
-                                                              "img\\UI\\playerLife1_red.png")).convert()
-powerup_images['gun'] = pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\"
-                                                             "img\\Power-ups\\powerupYellow_bolt.png")).convert()
-powerup_images['star'] = pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\Power-ups\\"
-                                                              "powerupBlue_star.png")).convert()
-powerup_images['speed'] = pygame.image.load(path.join(img_dir, "C:\\Users\\User\\Proba-2021\\img\\Power-ups\\"
-                                                              "powerupGreen_bolt.png")).convert()
-live_sound = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\User\\Proba-2021\\snd\\Powerup2.wav"))
-power_sound = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\User\\Proba-2021\\snd\\Powerup3.wav"))
-power_enemy = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\User\\Proba-2021\\snd\\Pickup_Coin3.wav"))
-power_speed_sound = pygame.mixer.Sound(path.join(snd_dir, "C:\\Users\\User\\Proba-2021\\snd\\Pickup_Coin.wav"))
+powerup_images['live'] = pygame.image.load(path.join(img_dir, "UI\\playerLife1_red.png")).convert()
+powerup_images['gun'] = pygame.image.load(path.join(img_dir, "Power-ups\\powerupYellow_bolt.png")).convert()
+powerup_images['star'] = pygame.image.load(path.join(img_dir, "Power-ups\\powerupBlue_star.png")).convert()
+powerup_images['speed'] = pygame.image.load(path.join(img_dir, "Power-ups\\powerupGreen_bolt.png")).convert()
+live_sound = pygame.mixer.Sound(path.join(snd_dir, "Powerup2.wav"))
+power_sound = pygame.mixer.Sound(path.join(snd_dir, "Powerup3.wav"))
+power_enemy = pygame.mixer.Sound(path.join(snd_dir, "Pickup_Coin3.wav"))
+power_speed_sound = pygame.mixer.Sound(path.join(snd_dir, "Pickup_Coin.wav"))
 
 pygame.mixer.music.set_volume(0.6)
 explosion_anim = dict()
@@ -192,7 +179,7 @@ class Shell(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
         self.image = bullet_img
-        self.image = pygame.transform.scale(bullet_img, (10, 20))
+        self.image = pygame.transform.scale(bullet_img, (7, 25))
         self.rect = self.image.get_rect()
         self.rect.bottom = y
         self.rect.centerx = x
@@ -248,7 +235,7 @@ class Target(pygame.sprite.Sprite):
 
         k = randint(0, 1000)
         if k < 10:
-            bomb = Bomb(self.rect.x, self.rect.y)
+            bomb = Bomb(self.rect.x, self.rect.bottom)
             all_sprites.add(bomb)
             bombs.add(bomb)
             shoot_bomb_sound.play()
@@ -292,7 +279,7 @@ class TargetUfo(pygame.sprite.Sprite):
 
         k = randint(0, 1000)
         if k < 100:
-            bomb = Bomb(self.rect.x, self.rect.y)
+            bomb = Bomb(self.rect.x, self.rect.bottom)
             all_sprites.add(bomb)
             bombs.add(bomb)
             shoot_bomb_sound.play()
@@ -305,7 +292,7 @@ class Bomb(pygame.sprite.Sprite):
     """
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.transform.scale(bomb_img, (8, 15))
+        self.image = pygame.transform.scale(bomb_img, (7, 25))
         self.rect = self.image.get_rect()
         self.rect.centerx = x
         self.rect.bottom = y
@@ -430,7 +417,7 @@ for i in range(2):
     m = Target()
     all_sprites.add(m)
     mobs.add(m)
-    
+
 clock = pygame.time.Clock()
 pygame.mixer.music.play(loops=-1)
 game_over = True
@@ -530,7 +517,7 @@ while runGame:
             pow = PowerUp(hit.rect.center)
             all_sprites.add(pow)
             power_up.add(pow)
-        if random() > 0.95:
+        elif random() > 0.95:
             pow = PowerUp(hit.rect.center)
             all_sprites.add(pow)
             power_up.add(pow)
@@ -558,6 +545,7 @@ while runGame:
                 if s.__class__.__name__ == 'Target':
                     choice(explos_snd).play()
                     exp = Explosion(s.rect.center, 'lg')
+                    all_sprites.add(exp)
                     all_sprites.remove(s)
                     mobs.remove(s)
                     break
