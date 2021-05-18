@@ -39,12 +39,15 @@ bullet_img = pygame.image.load(path.join(img_dir, "Lasers\\laserGreen10.png")).c
 bomb_img = pygame.image.load(path.join(img_dir, "Lasers\\laserBlue12.png")).convert()
 
 shoot_gun_sound = pygame.mixer.Sound(path.join(snd_dir, "Laser_Shoot_gun.wav"))
+shoot_gun_sound.set_volume(0.8)
 shoot_bomb_sound = pygame.mixer.Sound(path.join(snd_dir, "Laser_Shoot_bomb.wav"))
+shoot_gun_sound.set_volume(0.35)
 exp_sound = pygame.mixer.Sound(path.join(snd_dir, "Explosion.wav"))
 exp2_sound = pygame.mixer.Sound(path.join(snd_dir, "Explosion2.wav"))
+exp3_sound = pygame.mixer.Sound(path.join(snd_dir, "Explosion_4.wav"))
 healf_snd = pygame.mixer.Sound(path.join(snd_dir, "Explosion5.wav"))
-explos_snd = [exp_sound, exp2_sound]
-pygame.mixer.music.load(path.join(snd_dir, "POL-fortress-short.wav"))
+explos_snd = [exp_sound, exp2_sound, exp3_sound]
+pygame.mixer.music.load(path.join(snd_dir, "In Game.wav"))
 
 powerup_images = dict()
 powerup_images['live'] = pygame.image.load(path.join(img_dir, "UI\\playerLife1_red.png")).convert()
@@ -56,7 +59,7 @@ power_sound = pygame.mixer.Sound(path.join(snd_dir, "Powerup3.wav"))
 power_enemy = pygame.mixer.Sound(path.join(snd_dir, "Pickup_Coin3.wav"))
 power_speed_sound = pygame.mixer.Sound(path.join(snd_dir, "Pickup_Coin.wav"))
 
-pygame.mixer.music.set_volume(0.6)
+pygame.mixer.music.set_volume(1.3)
 explosion_anim = dict()
 explosion_anim['lg'] = []
 explosion_anim['sm'] = []
@@ -158,10 +161,8 @@ class Cannon(pygame.sprite.Sprite):
                 all_sprites.remove(bullet)
                 bullet1 = Shell(self.rect.left, self.rect.centery)
                 bullet2 = Shell(self.rect.right, self.rect.centery)
-                all_sprites.add(bullet1)
-                all_sprites.add(bullet2)
-                bullets.add(bullet1)
-                bullets.add(bullet2)
+                all_sprites.add(bullet1, bullet2)
+                bullets.add(bullet1, bullet2)
                 shoot_gun_sound.play()
 
     def hide(self):
@@ -457,7 +458,7 @@ while runGame:
         score_wall += randint(60, 120)
 
     # добавление моба при наборе очков
-    if score // 120 == enemy_screen:
+    if score // 120 == enemy_screen or len(mobs) < 2:
         flag_mob = 1
         score += 1
         enemy_screen += 1
@@ -483,8 +484,8 @@ while runGame:
     all_sprites.draw(screen)
     draw_text(screen, str(score), 18, xsc / 2, 10)
     draw_text(screen, "Record: "+str(score_rec), 20, 60, 10)
-    draw_lives(screen, xsc - 30, 5, gun.healf,
-               player_mini_img)
+    draw_lives(screen, xsc - 30, 5, gun.healf, player_mini_img)
+
     # Проверка, не попала ли бомба в игрока
     hits = pygame.sprite.spritecollide(gun, bombs, True)
     for hit in hits:
